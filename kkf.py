@@ -152,8 +152,7 @@ class Koukaton(pg.sprite.Sprite):
 
         self.rect.move_ip(self.speed*sum_mv[0], self.speed*sum_mv[1])
         if check_bound(self.rect) != (True, True):  #画面外に行かないように
-            print(self.rect.move_ip(-self.speed*sum_mv[0], -(646-self.rect.top+self.speed*sum_mv[1])))
-            self.rect.move_ip(-self.speed*sum_mv[0], -(646-self.rect.top+self.speed*sum_mv[1]))
+            self.rect.move_ip(-self.speed*sum_mv[0], (646-self.rect.bottom+self.speed*sum_mv[1]))
         screen.blit(self.image, self.rect)
 
 class Status(pg.sprite.Sprite):
@@ -401,7 +400,7 @@ def main():
         tmr += 1
         clock.tick(50)
 
-        dt = 50 - tmr/50 # ゲームの経過時間を計算
+        dt = 10 - tmr/50 # ゲームの経過時間を計算
 
         # キー入力の処理 HPが減るかの確認用
         keys = pg.key.get_pressed() # キーボードの状態をゲットする
