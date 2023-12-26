@@ -401,7 +401,7 @@ def main():
         tmr += 1
         clock.tick(50)
 
-        dt = 10 - tmr/50 # ゲームの経過時間を計算
+        dt = 50 - tmr/50 # ゲームの経過時間を計算
 
         # キー入力の処理 HPが減るかの確認用
         keys = pg.key.get_pressed() # キーボードの状態をゲットする
