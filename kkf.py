@@ -25,8 +25,7 @@ def check_bound(obj: pg.Rect) -> tuple[bool, bool]:
     yoko, tate = True, True
     if obj.left < 0 or WIDTH < obj.right:  # 横方向のはみ出し判定
         yoko = False
-
-    if obj.top < 0 or 500+obj.height/2 < obj.bottom:  # 縦方向のはみ出し判定　地面を元いる位置に設定
+    if obj.top < 0 or 646 < obj.bottom:  # 縦方向のはみ出し判定　地面を元いる位置に設定
         tate = False
     return yoko, tate
 
@@ -57,17 +56,14 @@ class Koukaton(pg.sprite.Sprite):
         self.player = player
         self.base_center = 0
         self.squat_flag = False
-        self.jamp_falg = False
+        self.jump_flag = False
         self.vel = 0
         img0 = pg.transform.rotozoom(pg.image.load(f"{MAIN_DIR}/fig/{num}.png"), 0, 4.0)
         img1 = pg.transform.flip(img0, True, False)  # 右向きこうかとん
         img2 = pg.transform.scale(img0, (img0.get_width(), img0.get_height()/2))
         if self.player == 1:  # プレイヤーによって画像の向きを設定
             self.dire = (+1, 0)
-            self.b_img = img2
         else:
-            img2 = pg.transform.scale(img1, (img1.get_width(), img1.get_height()/2))
-            self.b_img = img2
             self.dire = (-1, 0)
         self.imgs = {
             (+1, 0): img0,  # 右
@@ -103,53 +99,60 @@ class Koukaton(pg.sprite.Sprite):
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
-        gravity = 1
-        v0 = 30
+        grav = 0.05
+        v0 = -20
         sum_mv = [0, 0]
         if self.player == 1:  # 1p(右)側の移動処理
             for k, mv in __class__.delta1.items():
                 if key_lst[k]:
-                    self.rect.move_ip(+self.speed*mv[0], +self.speed*mv[1])
+                    # self.rect.move_ip(+self.speed*mv[0], +self.speed*mv[1])
                     sum_mv[0] += mv[0]
+                    # if self.jump_flag == False:
                     sum_mv[1] += mv[1]
+                    # else:
+                    #     sum_mv[1] += v0 + grav * self.timer ** 2
         else:  # 2p(左)側の移動処理
             for k, mv in __class__.delta2.items():
                 if key_lst[k]:
-                    self.rect.move_ip(+self.speed*mv[0], +self.speed*mv[1])
+                    # self.rect.move_ip(+self.speed*mv[0], +self.speed*mv[1])
                     sum_mv[0] += mv[0]
+                    # if self.jump_flag == False:
                     sum_mv[1] += mv[1]
-
-
-        if check_bound(self.rect) != (True, True):  #画面外に行かないように
-            if self.player == 1:
-                for k, mv in __class__.delta1.items():
-                    if key_lst[k]:
-                        self.rect.move_ip(-self.speed*mv[0], -self.speed*mv[1])
-            else:
-                for k, mv in __class__.delta2.items():
-                    if key_lst[k]:
-                        self.rect.move_ip(-self.speed*mv[0], -self.speed*mv[1])
-
-    
-        if sum_mv != [0, 0]:  # こうかとんが動いた時
-            if not(sum_mv[0] and sum_mv[1]):  # 両方数値が入ってる時ではない時
-                self.dire = tuple(sum_mv)
+                    # else:
+                    #     sum_mv[1] += v0 + grav * self.timer ** 2
+            
+        self.dire = tuple(sum_mv)         
+        if (self.dire in self.imgs) or (self.dire in self.imgs):
                 if self.image != self.imgs[self.dire]:
                     self.image = self.imgs[self.dire]
-                    if sum_mv[1] == 1 and self.rect.centery == 500:  # しゃがんだ時
-                        x,y = self.rect.center  # 今のこうかとんのcenterを取得
-                        self.rect = self.image.get_rect()  # こうかとんのrectを上書き
-                        self.rect.center = (x, y+self.image.get_height()/2)  # こうかとんのcenterを上書き
-                        self.squat_flag = 1
-                    # if sum_mv[1] == -1 and self.rect.centery == 500:  # ジャンプしたとき
-                        # self.vel += (gravity * tmr)
-                        # self.rect.centery += self.vel * tmr + 0.5 * gravity * (tmr ** 2)
-                    if sum_mv[1] != 1 and self.squat_flag:  # 下方向以外の入力がされしゃがみ状態の時
-                        x,y = self.rect.center  # 今のこうかとんのcenterを取得
-                        self.rect = self.image.get_rect()  # こうかとんのrectを上書き
-                        self.rect.center = (x, y-self.image.get_height()/4)  # こうかとんのcenterを上書き
-                        self.squat_flag = 0
-                    
+
+        if self.dire != (0, 0):
+            if sum_mv == [0, 1] and self.squat_flag == False:  # しゃがんだ時
+                x,y = self.rect.center  # 今のこうかとんのcenterを取得
+                self.rect = self.image.get_rect()  # こうかとんのrectを上書き
+                self.rect.center = (x, y+self.image.get_height()/2)  # こうかとんのcenterを上書き
+                self.squat_flag = True
+            if sum_mv[1] != 1 and self.squat_flag:  # 下方向以外の入力がされしゃがみ状態の時
+                x,y = self.rect.center  # 今のこうかとんのcenterを取得
+                self.rect = self.image.get_rect()  # こうかとんのrectを上書き
+                self.rect.center = (x, y-self.image.get_height()/4)  # こうかとんのcenterを上書き
+                self.squat_flag = False
+        if sum_mv[1] == -1 and self.jump_flag == False:  # ジャンプしたとき
+            self.jump_flag = True
+            self.timer = 0
+            sum_mv[1] = v0
+        if self.jump_flag:
+            self.timer += 1
+            sum_mv[1] +=  grav * self.timer ** 2
+            if self.rect.bottom > 646:
+                self.timer = 0
+                self.rect.centery = 500
+                sum_mv[1] = 1
+                self.jump_flag = False
+
+        self.rect.move_ip(self.speed*sum_mv[0], self.speed*sum_mv[1])
+        if check_bound(self.rect) != (True, True):  #画面外に行かないように
+            self.rect.move_ip(-self.speed*sum_mv[0], (646-self.rect.bottom+self.speed*sum_mv[1]))
         screen.blit(self.image, self.rect)
 
 class Status(pg.sprite.Sprite):
@@ -387,7 +390,6 @@ def main():
         else:
             guard = Guard()
 
-        print(play_1.getDamage())
         play_1.update(key_lst, screen)
         play_2.update(key_lst, screen)
         attacks.update()
@@ -398,7 +400,7 @@ def main():
         tmr += 1
         clock.tick(50)
 
-        dt = 50 - tmr/50 # ゲームの経過時間を計算
+        dt = 10 - tmr/50 # ゲームの経過時間を計算
 
         # キー入力の処理 HPが減るかの確認用
         keys = pg.key.get_pressed() # キーボードの状態をゲットする
