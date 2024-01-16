@@ -346,11 +346,11 @@ def main():
                 print("retrun")
                 statuses.update(-10)
             if not is_guard1:
-                if event.type == pg.KEYDOWN and event.key == pg.K_e:
+                if event.type == pg.KEYDOWN and event.key == pg.K_e and p1_ct == 0:
                     p1_ct = 15
                     attacks_1.add(Attack(play_1, play_1.imgs, play_1.image))  #通常のビーム
             if not is_guard2:
-                if event.type == pg.KEYDOWN and event.key == pg.K_u:
+                if event.type == pg.KEYDOWN and event.key == pg.K_u and p2_ct == 0:
                     p2_ct = 15
                     attacks_2.add(Attack(play_2, play_2.imgs, play_2.image))  #通常のビーム
             
