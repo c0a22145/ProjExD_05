@@ -189,7 +189,10 @@ class Status(pg.sprite.Sprite):
         self.barx += hp * 7
         self.rect = pg.draw.rect(self.image, (0, 0, 0), (0, 0, self.w, self.h))
         self.damage = pg.draw.rect(self.image, (255, 0, 0), (2, 2, self.w-4, self.h-4))
-        self.bar = pg.draw.rect(self.image, (0, 255, 0), (2+(700-self.barx), 2, self.barx-4, self.bary-4))
+        if self.bar_down == -1:
+            self.bar = pg.draw.rect(self.image, (0, 255, 0), (2+(700-self.barx), 2, self.barx-4, self.bary-4))
+        else:
+            self.bar = pg.draw.rect(self.image, (0, 255, 0), (2, 2, self.barx-4, self.bary-4))
         self.rect.center = (self.x, 20)
         self.bar.center = self.rect.center
         self.damage.center = self.rect.center
