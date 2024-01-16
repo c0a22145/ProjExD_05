@@ -180,7 +180,7 @@ class Status(pg.sprite.Sprite):
 
     # hpバーの更新
     def update(self, hp):
-        self.barx += hp
+        self.barx += hp * 7
         self.rect = pg.draw.rect(self.image, (0, 0, 0), (0, 0, self.w, self.h))
         self.damage = pg.draw.rect(self.image, (255, 0, 0), (2, 2, self.w-4, self.h-4))
         self.bar = pg.draw.rect(self.image, (0, 255, 0), (2+(700-self.barx), 2, self.barx-4, self.bary-4))
@@ -222,7 +222,6 @@ class Attack(pg.sprite.Sprite):  #追加機能
             self.kill()
             
 
-
 class start:
     """
     勝利条件に関するクラス
@@ -258,47 +257,6 @@ class start:
             else:
                 self.reset_timer -= dt
 
-
-
-class start:
-    """
-    勝利条件に関するクラス
-    """
-    def __init__(self, koukaton):
-        self.koukaton = koukaton
-        self.timer = 60  # 初期時間
-        self.reset_timer = 10  # リセットまでの時間について
-        self.round = 5  # ラウンド回数について
-        self.reset()
-
-    def reset(self):
-        """
-        勝利条件をリセットする
-        """
-        self.timer = 60
-        self.koukaton.hp = 100
-        self.allow_input = True
-        self.round -= 1
-        if self.round <= 0:
-            self.allow_input = False
-            
-    def update(self, dt):
-        """
-        勝利条件の更新
-        """
-        # 設定した時間かこうかとんのhpが0になったときに勝利
-        self.timer == dt
-        if self.koukaton.hp <= 0:
-            self.allow_input = False
-            if self.reset_timer <= 0:
-                self.reset()
-            else:
-                self.reset_timer -= dt
-
-    def setDamage(self, damage: int):
-        self.damage = damage
-    def getDamage(self):
-        return self.damage
     
 class Guard(pg.sprite.Sprite):
     """
@@ -391,23 +349,26 @@ def main():
         key_lst = pg.key.get_pressed()
             
         #todo当たり判定処理
-        
-        
+        if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
+                play_2.setDamage(10)
+        if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
+                play_1.setDamage(10)
                 
+        
         if key_lst[pg.K_q]:
-                    guard_1.update(screen, play_1)
-                else:
-                        if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
-                                play_1.setDamage(10)
-                                p1_stat.update(-10)
-                    　　guard_1 = Guard()
-                if key_lst[pg.K_o]:
-                    guard_2.update(screen, play_2)
-                else:
-                        if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
-                                play_2.setDamage(10)
-                                p2_stat.update(-10)
-                    　　guard_2 = Guard()
+            guard_1.update(screen, play_1)
+        else:                
+            guard_1 = Guard()
+        if key_lst[pg.K_o]:
+            guard_2.update(screen, play_2)
+        else:   
+            guard_2 = Guard()
+
+        if play_1.getDamage() != 0:
+            p1_stat.update(-10)
+        if play_2.getDamage() != 0:
+            p2_stat.update(-10)
+
         play_1.update(key_lst, screen)
         play_2.update(key_lst, screen)
         attacks_1.update()
@@ -419,7 +380,7 @@ def main():
         play_2.setSpeed(7.0)
 
         
-        pg.display.update()
+#        pg.display.update()
 
         play_1.setDamage(0)
         play_2.setDamage(0)
