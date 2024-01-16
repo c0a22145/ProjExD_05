@@ -212,17 +212,19 @@ class Attack(pg.sprite.Sprite):  #追加機能
         self.rect.centerx = Koukaton.rect.centerx+Koukaton.rect.width*self.vx #パンチの出る位置
         self.speed = 30 #パンチのスピード
         self.punch_distance = Koukaton.rect.centerx + self.speed*self.vx*10  #パンチの飛距離
+        self.cnt = 0
 
     def update(self):
         """
         ビームを速度ベクトルself.vx, self.vyに基づき移動させる
         引数 screen：画面Surface
         """
+        self.cnt += 1
         self.rect.move_ip(+self.speed*self.vx, +self.speed*self.vy)
         if check_bound(self.rect) != (True, True):
             self.kill()
-        # if  self.punch_distance < self.rect.centerx: #パンチの距離を超えると消滅する
-        #     self.kill()
+        if  self.cnt >= 15: #パンチの距離を超えると消滅する
+            self.kill()
             
 
 class start:
@@ -289,6 +291,8 @@ def main():
 
     play_1 = Koukaton(1, 2, (300, 500))
     play_2 = Koukaton(2, 2, (1300, 500))
+    p1_ct = 0
+    p2_ct = 0
 
     tmr = 0
     clock = pg.time.Clock()
@@ -343,9 +347,11 @@ def main():
                 statuses.update(-10)
             if not is_guard1:
                 if event.type == pg.KEYDOWN and event.key == pg.K_e:
+                    p1_ct = 15
                     attacks_1.add(Attack(play_1, play_1.imgs, play_1.image))  #通常のビーム
             if not is_guard2:
                 if event.type == pg.KEYDOWN and event.key == pg.K_u:
+                    p2_ct = 15
                     attacks_2.add(Attack(play_2, play_2.imgs, play_2.image))  #通常のビーム
             
         #メイン処理
@@ -428,7 +434,9 @@ def main():
             pg.display.update()
             pg.time.delay(2000)
             return 
-        
+
+        if p1_ct > 0: p1_ct -= 1
+        if p2_ct > 0: p2_ct -= 1
         # 勝利条件の更新
         vict_condition.update(dt)
 
