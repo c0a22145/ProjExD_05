@@ -391,13 +391,23 @@ def main():
         key_lst = pg.key.get_pressed()
             
         #todo当たり判定処理
-        if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
-            play_2.setDamage(10)
-            p2_stat.update(-10)
-        if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
-            play_1.setDamage(10)
-            p1_stat.update(-10)
-
+        
+        
+                
+        if key_lst[pg.K_q]:
+                    guard_1.update(screen, play_1)
+                else:
+                        if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
+                                play_1.setDamage(10)
+                                p1_stat.update(-10)
+                    　　guard_1 = Guard()
+                if key_lst[pg.K_o]:
+                    guard_2.update(screen, play_2)
+                else:
+                        if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
+                                play_2.setDamage(10)
+                                p2_stat.update(-10)
+                    　　guard_2 = Guard()
         play_1.update(key_lst, screen)
         play_2.update(key_lst, screen)
         attacks_1.update()
@@ -408,14 +418,7 @@ def main():
         play_1.setSpeed(7.0)
         play_2.setSpeed(7.0)
 
-        if key_lst[pg.K_q]:
-            guard_1.update(screen, play_1)
-        else:
-            guard_1 = Guard()
-        if key_lst[pg.K_o]:
-            guard_2.update(screen, play_2)
-        else:
-            guard_2 = Guard()
+        
         pg.display.update()
 
         play_1.setDamage(0)
