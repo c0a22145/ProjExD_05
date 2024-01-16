@@ -335,8 +335,10 @@ def main():
     guard_2 = Guard()
 
     statuses = pg.sprite.Group()
-    statuses.add(Status(350, 1))
-    statuses.add(Status(WIDTH-350, -1))
+    p1_stat = Status(350, 1)
+    p2_stat = Status(WIDTH-350, -1)
+    statuses.add(p1_stat)
+    statuses.add(p2_stat)
     pg.init()
     #koukaton = Koukaton() # クラスからオブジェクト生成
     vict_condition = start(play_1)
@@ -391,8 +393,10 @@ def main():
         #todo当たり判定処理
         if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
             play_2.setDamage(10)
+            p2_stat.update(-10)
         if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
             play_1.setDamage(10)
+            p1_stat.update(-10)
 
         play_1.update(key_lst, screen)
         play_2.update(key_lst, screen)
