@@ -43,6 +43,10 @@ class Koukaton(pg.sprite.Sprite):
         pg.K_j: (-1, 0),
         pg.K_l: (+1, 0),
     }
+    color = {
+        "p1": (255, 0, 0),
+        "p2": (0, 0, 255)
+    }
     def __init__(self, player:int, num: int, xy: tuple[int, int]):
         """
         こうかとん画像Surfaceを生成する
@@ -58,6 +62,8 @@ class Koukaton(pg.sprite.Sprite):
         self.squat_flag = False
         self.jump_flag = False
         self.vel = 0
+        font = pg.font.Font(None, 50)
+        self.pn = font.render(f"P{player}", True, self.color[f"p{player}"])
         img0 = pg.transform.rotozoom(pg.image.load(f"{MAIN_DIR}/fig/{num}.png"), 0, 4.0)
         img1 = pg.transform.flip(img0, True, False)  # 右向きこうかとん
         img2 = pg.transform.scale(img0, (img0.get_width(), img0.get_height()/2))
@@ -71,7 +77,7 @@ class Koukaton(pg.sprite.Sprite):
             (0, +1): img2,  # しゃがみ
             (0, -1): img0,  # ジャンプ
         }
-        
+        self.pn_rect = self.pn.get_rect(center=(xy[0], xy[1] - (img0.get_height()/2 + 10)))
         self.image = self.imgs[self.dire]
         self.rect = self.image.get_rect()
         self.rect.center = xy
@@ -101,6 +107,7 @@ class Koukaton(pg.sprite.Sprite):
         """
         grav = 0.01
         v0 = -40
+        x,y = self.rect.center  # 今のこうかとんのcenterを取得
         sum_mv = [0, 0]
         if self.player == 1:  # 1p(右)側の移動処理
             for k, mv in __class__.delta1.items():
@@ -128,12 +135,10 @@ class Koukaton(pg.sprite.Sprite):
 
         if self.dire != (0, 0):
             if sum_mv == [0, 1] and self.squat_flag == False:  # しゃがんだ時
-                x,y = self.rect.center  # 今のこうかとんのcenterを取得
                 self.rect = self.image.get_rect()  # こうかとんのrectを上書き
                 self.rect.center = (x, y+self.image.get_height()/2)  # こうかとんのcenterを上書き
                 self.squat_flag = True
             if sum_mv[1] != 1 and self.squat_flag:  # 下方向以外の入力がされしゃがみ状態の時
-                x,y = self.rect.center  # 今のこうかとんのcenterを取得
                 self.rect = self.image.get_rect()  # こうかとんのrectを上書き
                 self.rect.center = (x, y-self.image.get_height()/4)  # こうかとんのcenterを上書き
                 self.squat_flag = False
@@ -154,7 +159,8 @@ class Koukaton(pg.sprite.Sprite):
         if check_bound(self.rect) != (True, True):  #画面外に行かないように
             self.rect.move_ip(-self.speed*sum_mv[0], (646-self.rect.bottom+self.speed*sum_mv[1]))
         screen.blit(self.image, self.rect)
-
+        self.pn_rect.center = (x, y - (self.image.get_height()/2 + 10))
+        screen.blit(self.pn, self.pn_rect)
         #hpの減算処理
         self.hp -= self.damage
 
