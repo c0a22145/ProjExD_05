@@ -271,7 +271,7 @@ class Guard(pg.sprite.Sprite):
         super().__init__()
         self.guard_hp = 5
 
-    def update(self, screen: pg.Surface,  koukaton: Koukaton):
+    def update(self, screen: pg.Surface,  koukaton: Koukaton, color):
         if self.guard_hp <= 0:  #ガードが不可能な場合
             koukaton.setSpeed(1.0)  #行動不可を解除
         else:
@@ -279,7 +279,7 @@ class Guard(pg.sprite.Sprite):
                 koukaton.setDamage(0)  #ダメージの無効化
                 self.guard_hp -= 1  #ガード可能回数を減らす
             koukaton.setSpeed(0.0)  #こうかとんを移動不可にする
-            pg.draw.circle(screen, (0, 255, 255), (koukaton.rect.centerx, koukaton.rect.centery), 40 * self.guard_hp)  #ガード表示
+            pg.draw.circle(screen, color, (koukaton.rect.centerx, koukaton.rect.centery), 40 * self.guard_hp)  #ガード表示
     
 
 def main():
@@ -370,13 +370,13 @@ def main():
         
         if key_lst[pg.K_q]:
             is_guard1 = True
-            guard_1.update(screen, play_1)
+            guard_1.update(screen, play_1,(255, 255, 0))
         else:
             is_guard1 = False            
             guard_1 = Guard()
         if key_lst[pg.K_o]:
             is_guard2 = True
-            guard_2.update(screen, play_2)
+            guard_2.update(screen, play_2, (0, 255, 255))
         else:   
             is_guard2 = False
             guard_2 = Guard()
