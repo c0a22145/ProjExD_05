@@ -99,8 +99,8 @@ class Koukaton(pg.sprite.Sprite):
         引数1 key_lst：押下キーの真理値リスト
         引数2 screen：画面Surface
         """
-        grav = 0.05
-        v0 = -20
+        grav = 0.01
+        v0 = -40
         sum_mv = [0, 0]
         if self.player == 1:  # 1p(右)側の移動処理
             for k, mv in __class__.delta1.items():
@@ -294,6 +294,8 @@ def main():
     clock = pg.time.Clock()
     guard_1 = Guard()
     guard_2 = Guard()
+    is_guard1 = False
+    is_guard2 = False
 
     statuses = pg.sprite.Group()
     p1_stat = Status(350, 1)
@@ -339,10 +341,12 @@ def main():
             if event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
                 print("retrun")
                 statuses.update(-10)
-            if event.type == pg.KEYDOWN and event.key == pg.K_e:
-                attacks_1.add(Attack(play_1, play_1.imgs, play_1.image))  #通常のビーム
-            if event.type == pg.KEYDOWN and event.key == pg.K_u:
-                attacks_2.add(Attack(play_2, play_2.imgs, play_2.image))  #通常のビーム
+            if not is_guard1:
+                if event.type == pg.KEYDOWN and event.key == pg.K_e:
+                    attacks_1.add(Attack(play_1, play_1.imgs, play_1.image))  #通常のビーム
+            if not is_guard2:
+                if event.type == pg.KEYDOWN and event.key == pg.K_u:
+                    attacks_2.add(Attack(play_2, play_2.imgs, play_2.image))  #通常のビーム
             
         #メイン処理
         screen.blit(bg_img, [0, 0])
@@ -359,12 +363,16 @@ def main():
                 
         
         if key_lst[pg.K_q]:
+            is_guard1 = True
             guard_1.update(screen, play_1)
-        else:                
+        else:
+            is_guard1 = False            
             guard_1 = Guard()
         if key_lst[pg.K_o]:
+            is_guard2 = True
             guard_2.update(screen, play_2)
         else:   
+            is_guard2 = False
             guard_2 = Guard()
 
         if play_1.getDamage() != 0:
