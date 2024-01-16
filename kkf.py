@@ -52,7 +52,7 @@ class Koukaton(pg.sprite.Sprite):
         super().__init__()
         self.hp = 100
         self.speed = 7.0
-        self.damage = 10
+        self.damage = 0
         self.player = player
         self.base_center = 0
         self.squat_flag = False
@@ -154,6 +154,9 @@ class Koukaton(pg.sprite.Sprite):
         if check_bound(self.rect) != (True, True):  #画面外に行かないように
             self.rect.move_ip(-self.speed*sum_mv[0], (646-self.rect.bottom+self.speed*sum_mv[1]))
         screen.blit(self.image, self.rect)
+
+        #hpの減算処理
+        self.hp -= self.damage
 
 class Status(pg.sprite.Sprite):
     """
@@ -301,7 +304,7 @@ class Guard(pg.sprite.Sprite):
     """
     ガードに関するクラス
     """
-    def __init__(self,):
+    def __init__(self):
         super().__init__()
         self.guard_hp = 5
 
@@ -313,25 +316,27 @@ class Guard(pg.sprite.Sprite):
                 koukaton.setDamage(0)  #ダメージの無効化
                 self.guard_hp -= 1  #ガード可能回数を減らす
             koukaton.setSpeed(0.0)  #こうかとんを移動不可にする
-            pg.draw.circle(screen, (0, 255, 255), (500,500), 20 * self.guard_hp)  #ガード表示
+            pg.draw.circle(screen, (0, 255, 255), (koukaton.rect.centerx, koukaton.rect.centery), 40 * self.guard_hp)  #ガード表示
     
 
 def main():
     pg.display.set_caption("大戦争スマッシュこうかとんファイターズ")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load(f"{MAIN_DIR}/fig/pg_bg.jpg")
-    attacks = pg.sprite.Group()
+    attacks_1 = pg.sprite.Group()
+    attacks_2 = pg.sprite.Group()
+
     play_1 = Koukaton(1, 2, (300, 500))
     play_2 = Koukaton(2, 2, (1300, 500))
 
     tmr = 0
     clock = pg.time.Clock()
-    guard = Guard()
+    guard_1 = Guard()
+    guard_2 = Guard()
 
     statuses = pg.sprite.Group()
     statuses.add(Status(350, 1))
     statuses.add(Status(WIDTH-350, -1))
-        
     pg.init()
     #koukaton = Koukaton() # クラスからオブジェクト生成
     vict_condition = start(play_1)
@@ -341,7 +346,8 @@ def main():
     txt = fonto.render("Time UP", True, (255, 0, 0))
     start_screen_font = pg.font.Font(None, 200)
     start_screen_color = (200, 50, 100)  # 紫色の文字
-    lnvalid_screen_color = (255, 0, 0)  # 赤色の文字)
+    lnvalid_screen_color = (255, 0, 0)  # 赤色の文字
+
     # スタート画面についての部分
     while True:
         key_lst = pg.key.get_pressed()
@@ -362,6 +368,7 @@ def main():
     tmr = 0
     clock.tick(50)
     # ここまでがスタート画面です。
+
     # メインコード部分
     while True:
         for event in pg.event.get():
@@ -369,8 +376,10 @@ def main():
             if event.type == pg.KEYDOWN and event.key == pg.K_RETURN:
                 print("retrun")
                 statuses.update(-10)
-            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                attacks.add(Attack(play_1))  #通常のビーム
+            if event.type == pg.KEYDOWN and event.key == pg.K_e:
+                attacks_1.add(Attack(play_1))  #通常のビーム
+            if event.type == pg.KEYDOWN and event.key == pg.K_u:
+                attacks_2.add(Attack(play_2))  #通常のビーム
             
         #メイン処理
         screen.blit(bg_img, [0, 0])
@@ -378,24 +387,35 @@ def main():
         #メイン処理
         ###キーボード処理###
         key_lst = pg.key.get_pressed()
-
-        #テスト用
-        if key_lst[pg.K_e]:
-            if tmr % 50 == 0:
-                play_1.setDamage(100)
-        #テスト用終わり
             
-        if key_lst[pg.K_q]:
-            guard.update(screen, play_1)
-        else:
-            guard = Guard()
+        #todo当たり判定処理
+        if len(pg.sprite.spritecollide(play_2, attacks_1, True)) != 0:
+            play_2.setDamage(10)
+        if len(pg.sprite.spritecollide(play_1, attacks_2, True)) != 0:
+            play_1.setDamage(10)
 
         play_1.update(key_lst, screen)
         play_2.update(key_lst, screen)
-        attacks.update()
-        attacks.draw(screen)
+        attacks_1.update()
+        attacks_1.draw(screen)
+        attacks_2.update()
+        attacks_2.draw(screen)
         statuses.draw(screen)
+        play_1.setSpeed(7.0)
+        play_2.setSpeed(7.0)
+
+        if key_lst[pg.K_q]:
+            guard_1.update(screen, play_1)
+        else:
+            guard_1 = Guard()
+        if key_lst[pg.K_o]:
+            guard_2.update(screen, play_2)
+        else:
+            guard_2 = Guard()
         pg.display.update()
+
+        play_1.setDamage(0)
+        play_2.setDamage(0)
         
         tmr += 1
         clock.tick(50)
@@ -404,7 +424,9 @@ def main():
 
         # キー入力の処理 HPが減るかの確認用
         keys = pg.key.get_pressed() # キーボードの状態をゲットする
+
         
+
         if dt >= 0: # 時間が0になるまでの時間を右下に表示
             hyper_text = hyper_font.render(f"Time: {int(dt)}", True, hyper_color)
             hyper_pos = (WIDTH - hyper_text.get_width() - 10, HEIGHT - hyper_text.get_height() - 10)
@@ -417,10 +439,16 @@ def main():
             return
         if play_1.getHp() <= 0:
             txt_rect = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-            draw_start_screen(screen, start_screen_font, "Finish!!!", lnvalid_screen_color)  # Finissh!!!を画面中央に表示
+            draw_start_screen(screen, start_screen_font, "Finish!!!2P Win", lnvalid_screen_color)  # Finissh!!!を画面中央に表示
             pg.display.update()
             pg.time.delay(2000)
             return   
+        if play_2.getHp() <= 0:
+            txt_rect = txt.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+            draw_start_screen(screen, start_screen_font, "Finish!!!1P Win", lnvalid_screen_color)  # Finissh!!!を画面中央に表示
+            pg.display.update()
+            pg.time.delay(2000)
+            return 
         
         # 勝利条件の更新
         vict_condition.update(dt)
