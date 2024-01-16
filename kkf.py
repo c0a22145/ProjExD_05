@@ -221,9 +221,8 @@ class Attack(pg.sprite.Sprite):  #追加機能
         self.rect.move_ip(+self.speed*self.vx, +self.speed*self.vy)
         if check_bound(self.rect) != (True, True):
             self.kill()
-        if  self.punch_distance < self.rect.centerx: #パンチの距離を超えると消滅する
-            print("hoge")
-            self.kill()
+        # if  self.punch_distance < self.rect.centerx: #パンチの距離を超えると消滅する
+        #     self.kill()
             
 
 class start:
