@@ -233,7 +233,19 @@ class start:
         self.koukaton = koukaton
         self.timer = 60  # 初期時間
         self.reset_timer = 10  # リセットまでの時間について
+        self.round = 5  # ラウンド回数について
         self.reset()
+            
+    def reset(self):
+        """
+        勝利条件をリセットする
+        """
+        self.timer = 60
+        self.koukaton.hp = 100
+        self.allow_input = True
+        self.round -= 1
+        if self.round <= 0:
+            self.allow_input = False
             
     def update(self, dt):
         """
