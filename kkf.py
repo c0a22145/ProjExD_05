@@ -192,13 +192,17 @@ class Attack(pg.sprite.Sprite):  #追加機能
     """
     攻撃に関するクラス
     """
-    def __init__(self, Koukaton: Koukaton):
+    def __init__(self, Koukaton: Koukaton, kk_dire, kk_img):
         """
         パンチ画像Surfaceを生成する
         引数 bird：パンチを放つこうかとん
         """
         super().__init__()
-        self.vx, self.vy = Koukaton.dire
+        for k, v in kk_dire.items():
+            if v == kk_img:
+                print(f"{k},{v}")
+                self.vx, self.vy = k
+                break
         angle = math.degrees(math.atan2(-self.vy, self.vx))
         self.image = pg.transform.rotozoom(pg.image.load(f"{MAIN_DIR}/fig/beam.png"), angle, 4.0)
         self.vx = math.cos(math.radians(angle))
@@ -337,9 +341,9 @@ def main():
                 print("retrun")
                 statuses.update(-10)
             if event.type == pg.KEYDOWN and event.key == pg.K_e:
-                attacks_1.add(Attack(play_1))  #通常のビーム
+                attacks_1.add(Attack(play_1, play_1.imgs, play_1.image))  #通常のビーム
             if event.type == pg.KEYDOWN and event.key == pg.K_u:
-                attacks_2.add(Attack(play_2))  #通常のビーム
+                attacks_2.add(Attack(play_2, play_2.imgs, play_2.image))  #通常のビーム
             
         #メイン処理
         screen.blit(bg_img, [0, 0])
