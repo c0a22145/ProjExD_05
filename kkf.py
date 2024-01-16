@@ -234,19 +234,7 @@ class start:
         self.koukaton = koukaton
         self.timer = 60  # 初期時間
         self.reset_timer = 10  # リセットまでの時間について
-        self.round = 5  # ラウンド回数について
         self.reset()
-
-    def reset(self):
-        """
-        勝利条件をリセットする
-        """
-        self.timer = 60
-        self.koukaton.hp = 100
-        self.allow_input = True
-        self.round -= 1
-        if self.round <= 0:
-            self.allow_input = False
             
     def update(self, dt):
         """
@@ -392,7 +380,7 @@ def main():
         tmr += 1
         clock.tick(50)
 
-        dt = 10 - tmr/50 # ゲームの経過時間を計算
+        dt = 30 - tmr/50 # ゲームの経過時間を計算
 
         # キー入力の処理 HPが減るかの確認用
         keys = pg.key.get_pressed() # キーボードの状態をゲットする
